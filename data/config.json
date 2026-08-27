@@ -1,0 +1,30 @@
+{
+  "guilds": {
+    "1526341855757991996": {
+      "title": "",
+      "description": "",
+      "banner": "",
+      "icon": "",
+      "logChannelId": "",
+      "botName": "",
+      "botIcon": "",
+      "botBanner": "",
+      "creditsText": "Creditos By 11K Booster",
+      "protectedServerIds": [],
+      "botMode": "v2"
+    },
+    "1537116047340081192": {
+      "title": "cloner do kaue1ts",
+      "description": "",
+      "banner": "",
+      "icon": "",
+      "logChannelId": "1537116048925659145",
+      "botName": "kaue1ts cloner",
+      "botIcon": "",
+      "botBanner": "https://cdn.discordapp.com/attachments/1374115519401295993/1524175005791948900/5a922ae058ec4617eec2cb6ac1814b25.gif?ex=6a920697&is=6a90b517&hm=849f654f48838a2460d64bd8719c3e56b05e8156fb2b4cda14fbc33ae3fa1011&",
+      "creditsText": "Creditos By 11K Booster",
+      "protectedServerIds": [],
+      "botMode": "v1"
+    }
+  }
+}
