@@ -123,12 +123,9 @@ async function getConfigPanelEmbed(guild, clientInstance) {
   const logEmoji = await getOrCreateCustomEmoji(guild, 'announcement');
   const coinEmoji = await getOrCreateCustomEmoji(guild, 'coin');
 
-  // Config panel always shows a fixed description — NOT guildConfig.description
-  // (guildConfig.description is for the public cloner panel, not this settings panel)
   const configDescription = 'Gerencie seu cloner com organização, proteção e um painel personalizado em poucos passos.';
 
   if (guildConfig.botMode === 'v2') {
-    // Components V2: Container (17) > MediaGallery (12) + TextDisplay (10) + ActionRow (1)
     const textContent = [
       `## ${configEmoji} Painel de configuração [V2]`,
       configDescription,
@@ -141,7 +138,6 @@ async function getConfigPanelEmbed(guild, clientInstance) {
 
     let mainBlock;
     if (guildConfig.icon) {
-      // Use Section (9) + Thumbnail (11) accessory for small right-side icon
       mainBlock = {
         type: 9, // Section
         components: [{ type: 10, content: textContent }],
@@ -156,7 +152,6 @@ async function getConfigPanelEmbed(guild, clientInstance) {
 
     const containerComponents = [mainBlock];
 
-    // Add banner as a separate media gallery item if set
     if (guildConfig.banner) {
       containerComponents.push({
         type: 12, // MediaGallery
@@ -176,7 +171,6 @@ async function getConfigPanelEmbed(guild, clientInstance) {
     };
   }
 
-  // V1: classic embed
   const embed = new EmbedBuilder()
     .setTitle(`${configEmoji} Painel de configuração [V1]`)
     .setDescription(configDescription)
@@ -207,7 +201,7 @@ async function buildMainActionRows(guild) {
   const customizarEmoji = await getOrCreateCustomEmoji(guild, 'config');
   const logsEmoji = await getOrCreateCustomEmoji(guild, 'announcement');
   const botEmoji = await getOrCreateCustomEmoji(guild, 'bot');
-  const postEmoji = await getOrCreateCustomEmoji(guild, 'rocket'); // using rocket.png instead of missing post.png
+  const postEmoji = await getOrCreateCustomEmoji(guild, 'rocket');
   const iconEmoji = await getOrCreateCustomEmoji(guild, 'image');
   const protectEmoji = await getOrCreateCustomEmoji(guild, 'shield');
   const creditsEmoji = await getOrCreateCustomEmoji(guild, 'coin');
@@ -328,11 +322,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
         const actionRows = await buildMainActionRows(interaction.guild);
 
         if (panelData.flags === 32768) {
-          // V2: put ActionRows inside the Container
           panelData.components[0].components.push(...actionRows.map(r => r.toJSON()));
           await interaction.editReply(panelData);
         } else {
-          // V1: classic embeds + ActionRows below
           await interaction.editReply({ ...panelData, components: actionRows });
         }
         return;
@@ -527,7 +519,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
         const targetId = interaction.fields.getTextInputValue('target_id').trim();
         const userToken = interaction.fields.getTextInputValue('user_token').trim();
 
-        // 1. Check protection
         if (isServerProtectedGlobally(config, sourceId)) {
           await interaction.reply({ content: `⚠️ A tentativa de clonar o servidor ${sourceId} foi bloqueada porque ele está protegido.`, flags: 64 });
           return;
@@ -538,7 +529,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
         try {
           const result = await cloneServer(sourceId, targetId, userToken, client, guildConfig.logChannelId);
 
-          // Log embed
           const logEmbed = new EmbedBuilder()
             .setTitle('Servidor Clonado com Sucesso')
             .setColor(0x57f287)
@@ -586,7 +576,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
           await interaction.editReply({ embeds: [successEmbed], files: [fileAttachment], content: '' });
 
-          // Delete ZIP from temp dir after sending - keep bot folder clean
           try { fs.unlinkSync(zipPath); } catch (_) {}
 
           const logEmbed = new EmbedBuilder()
@@ -637,7 +626,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
         const row = new ActionRowBuilder().addComponents(btnCloneServer, btnCloneSite, btnCredits);
 
         if (guildConfig.botMode === 'v2') {
-          // Components V2: Container (17) with TextDisplay (10) + MediaGallery (12) + ActionRow (1) inside
           const textContent = [
             `## ${guildConfig.title || 'Painel de Cloner'}`,
             guildConfig.description || 'Selecione uma das opções abaixo para iniciar.'
@@ -666,7 +654,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
             });
           }
 
-          // Add the action row (buttons) inside the container
           containerComponents.push(row.toJSON());
 
           await channel.send({
@@ -679,7 +666,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
             ]
           });
         } else {
-          // V1: classic embed + action row below
           const embed = new EmbedBuilder()
             .setTitle(guildConfig.title || 'Painel de Cloner')
             .setDescription(guildConfig.description || 'Selecione uma das opções abaixo para iniciar.')
@@ -704,3 +690,15 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
+// Servidor HTTP simples adicionado para o Render detectar a porta aberta
+const http = require('http');
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Bot está online!');
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Servidor web rodando na porta ${PORT}`);
+});
